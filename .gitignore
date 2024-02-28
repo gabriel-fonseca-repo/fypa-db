@@ -41,3 +41,9 @@ build/
 .idea/*
 .mvn/
 .mvn/*
+.mvn/wrapper/
+.mvn/wrapper/*
+*/maven-wrapper.jar
+*/maven-wrapper.properties
+maven-wrapper.jar
+maven-wrapper.properties
