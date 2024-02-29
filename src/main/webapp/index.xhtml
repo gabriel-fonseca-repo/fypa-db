@@ -3,32 +3,97 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui" xmlns:f="http://java.sun.com/jsf/core">
 <h:head>
     <title>Fypa Database</title>
+    <link rel="shortcut icon" type="image/x-icon" href="#{resource['db.ico']}"/>
+    <h:outputStylesheet library="css" name="styles.css"/>
 </h:head>
 
-<h:body>
+<h:body onload="validarTamanhoPagina();">
 
-    <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()"/>
+    <p:growl id="growl" showDetail="false"/>
 
-    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false"
-              showHeader="false">
-        <i class="pi pi-spin pi-spinner" style="font-size: 2rem; margin: 2rem 2rem 1rem 2rem;"/>
+    <p:remoteCommand name="validarTamanhoPagina" action="#{databaseBean.validarTamanhoPagina}"/>
+
+    <p:ajaxStatus onstart="PF('statusDialog').show();" onsuccess="PF('statusDialog').hide();"/>
+
+    <p:dialog widgetVar="statusDialog" styleClass="status-dialog" modal="true" draggable="false" closable="false"
+              resizable="false" showHeader="false">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem; margin: 2rem;"/>
     </p:dialog>
 
-    <h:form style="padding: 5rem;">
-        <p:inputText value="#{databaseBean.chaveDeBusca}"/>
-        <p:commandButton action="#{databaseBean.buscar()}" process="@form" update="@form"/>
-        <p:dataTable var="tupla" value="#{databaseBean.pagina.dadosPagina}">
-            <p:column headerText="Indice página">
-                <h:outputText value="#{tupla.indicePagina}"/>
-            </p:column>
-            <p:column headerText="Conteúdo">
-                <h:outputText value="#{tupla.dados}"/>
-            </p:column>
-        </p:dataTable>
-    </h:form>
+    <h:form styleClass="main-form">
 
+        <p:dialog widgetVar="definirTamanhoPaginaDialog" modal="true" draggable="false" closable="false"
+                  dynamic="true" resizable="false" header="Definir o tamanho da página">
+            <div class="tamanho-pg-dialog">
+                <p:outputLabel for="tamanhoPagina">Tamanho da página: </p:outputLabel>
+                <div class="tamanho-pg-field">
+                    <p:spinner id="tamanhoPagina" value="#{databaseBean.tamanhoPagina}"
+                               converterMessage="Por favor, apenas números inteiros." required="true"
+                               requiredMessage="O valor de tamanho da página é obrigatório!"/>
+                    <p:commandButton type="submit" value="Ok" action="#{databaseBean.gravarTamanhoPagina()}"
+                                     process="@form" update="@form growl" oncomplete="validarTamanhoPagina();"/>
+                </div>
+            </div>
+        </p:dialog>
+
+        <div class="campos-form">
+            <div class="campo-form">
+                <p:outputLabel for="porcentagemColisoes">% de colisões: </p:outputLabel>
+                <p:inputText id="porcentagemColisoes" value="#{databaseBean.porcentagemColisoes}" disabled="true"
+                             readonly="true"/>
+            </div>
+            <div class="campo-form">
+                <p:outputLabel for="quantidadePaginas">Qtd. de páginas: </p:outputLabel>
+                <p:inputText id="quantidadePaginas" value="#{databaseBean.tabela.paginas.size()}" disabled="true"
+                             readonly="true"/>
+            </div>
+            <div class="campo-form">
+                <p:outputLabel for="quantidadeBuckets">Qtd. de buckets: </p:outputLabel>
+                <p:inputText id="quantidadeBuckets" value="#{databaseBean.buckets.size()}" disabled="true"
+                             readonly="true"/>
+            </div>
+            <div class="campo-form">
+                <p:outputLabel for="qtdRegistrosPorPagina">Qtd. de registros exibidos: </p:outputLabel>
+                <p:spinner id="qtdRegistrosPorPagina" value="#{databaseBean.qtdRegistrosPorPagina}"
+                           converterMessage="Por favor, apenas números inteiros." required="true"
+                           requiredMessage="O valor de tamanho da página é obrigatório!" min="1">
+                    <p:ajax event="change" process="@form" update="@form"/>
+                </p:spinner>
+            </div>
+            <div class="campo-form">
+                <p:outputLabel for="chaveDeBusca">Buscar: </p:outputLabel>
+                <p:inputText id="chaveDeBusca" value="#{databaseBean.chaveDeBusca}"/>
+            </div>
+            <p:commandButton type="submit" value="Buscar chave" action="#{databaseBean.buscar()}"
+                             process="@form" update="@form growl" icon="pi pi-search"/>
+            <p:commandButton value="Resetar tabela" type="submit" icon="pi pi-refresh"
+                             action="#{databaseBean.resetarTabela()}" process="@form" update="@form"/>
+        </div>
+
+        <div>
+            <p:dataTable styleClass="main-datatable" var="tupla" value="#{databaseBean.registrosParaExibir}"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         currentPageReportTemplate="{startRecord}-{endRecord} de {totalRecords} registros"
+                         lazy="false" rows="#{databaseBean.qtdRegistrosPorPagina}"
+                         paginator="true" paginatorPosition="both"
+            >
+                <f:facet name="header">
+                    <h:outputText rendered="#{databaseBean.pagina != null}"
+                                  value="Visualizando os conteúdos da página: #{databaseBean.idxPagina}"/>
+                    <h:outputText rendered="#{databaseBean.pagina == null}" value="#{databaseBean.idxPagina}"/>
+                </f:facet>
+                <p:column headerText="Indice página">
+                    <h:outputText value="#{tupla.indicePagina}"/>
+                </p:column>
+                <p:column headerText="Conteúdo">
+                    <h:outputText value="#{tupla.dados}"/>
+                </p:column>
+            </p:dataTable>
+        </div>
+
+    </h:form>
 </h:body>
 </html>

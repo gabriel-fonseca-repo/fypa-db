@@ -1,0 +1,63 @@
+body .ui-growl {
+    top: 25px;
+}
+
+.ui-growl {
+    z-index: 999999 !important;
+}
+
+.main-form {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.tamanho-pg-dialog {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 10px;
+}
+
+.tamanho-pg-field {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.ui-dialog.status-dialog > .ui-dialog-content {
+    padding: unset;
+}
+
+.campo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.campos-form {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-end;
+}
+
+.main-datatable {
+    margin: 0 15%;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+.ui-datatable-tablewrapper > * {
+    text-align: center;
+}
+
+th.ui-state-default:has(> span.ui-column-title) {
+    text-align: center;
+}

@@ -3,6 +3,8 @@ package com.fypa.projdb.ds;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -16,6 +18,10 @@ public class Bucket {
 
     public static Integer MAX_QTD_BUCKETS;
 
+    public static Integer COLISOES;
+
+    public static Integer QTD_LINHAS;
+
     public Bucket() {
         this.registros = new ArrayList<>();
     }
@@ -23,12 +29,14 @@ public class Bucket {
     public static ArrayList<Bucket> carregarBucket(ArrayList<Pagina> paginas, Integer qtdLinhas) {
         ArrayList<Bucket> buckets = new ArrayList<>();
 
-        MAX_QTD_BUCKETS = (int) (double) (qtdLinhas / MAX_TAMANHO_BUCKET);
+        QTD_LINHAS = qtdLinhas;
+
+        MAX_QTD_BUCKETS = (int) (double) (QTD_LINHAS / MAX_TAMANHO_BUCKET);
 
         for (int i = 0; i < MAX_QTD_BUCKETS; i++)
             buckets.add(new Bucket());
 
-        int colisoes = 0;
+        COLISOES = 0;
 
         for (Pagina pagina : paginas) {
             for (Tupla tupla : pagina.getDadosPagina()) {
@@ -38,13 +46,12 @@ public class Bucket {
                 if (buckets.get(hash).isNotCheio()) {
                     buckets.get(hash).getRegistros().add(tupla);
                 } else {
-                    colisoes += 1;
+                    COLISOES += 1;
                 }
 
             }
         }
 
-        System.out.println("Porcentagem de colisão no preenchimento do Bucket: " + calcularPorcentagem(colisoes, qtdLinhas));
         return buckets;
     }
 
@@ -72,11 +79,12 @@ public class Bucket {
         return Math.abs(hash);
     }
 
-    public static double calcularPorcentagem(int parte, int total) {
+    public static BigDecimal calcularPorcentagem(int parte, int total) {
         if (total == 0) {
             throw new IllegalArgumentException("Total não pode ser zero!");
         }
-        return ((double) parte / total) * 100;
+
+        return BigDecimal.valueOf(((double) parte / total) * 100);
     }
 
     public boolean isNotCheio() {

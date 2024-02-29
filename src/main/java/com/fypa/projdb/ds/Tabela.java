@@ -6,8 +6,12 @@ import lombok.Setter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -15,11 +19,19 @@ public class Tabela {
 
     private final ArrayList<Pagina> paginas;
 
+    private final ArrayList<Tupla> registros;
+
     private final Integer qtdLinhas;
 
     public Tabela(File arquivoParaLer, Integer tamanhoPagina) {
         this.paginas = carregarPaginas(arquivoParaLer, tamanhoPagina);
+        this.registros = carregarRegistros(paginas);
         this.qtdLinhas = lerQtdLinhas(arquivoParaLer);
+    }
+
+    private ArrayList<Tupla> carregarRegistros(ArrayList<Pagina> paginas) {
+        List<Tupla> registrosLcl = paginas.stream().map(Pagina::getDadosPagina).flatMap(Collection::stream).toList();
+        return new ArrayList<>(registrosLcl);
     }
 
     public ArrayList<Pagina> carregarPaginas(File arquivoParaLer, Integer tamanhoPagina) {
