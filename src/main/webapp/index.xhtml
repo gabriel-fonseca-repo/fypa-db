@@ -6,11 +6,13 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 <h:head>
+    <title>Fypa Database</title>
 </h:head>
 
 <h:body>
 
-    <h:outputText for="spinner" value="#{databaseBean.helloWorld}"/>
+    <p:outputLabel value="#{databaseBean.helloWorld}"/>
+    <p:commandButton action="#{databaseBean.botao()}"/>
     <p:spinner id="spinner"/>
 
 </h:body>
