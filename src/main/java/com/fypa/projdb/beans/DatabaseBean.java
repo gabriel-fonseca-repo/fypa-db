@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Named
 @SessionScoped
@@ -35,9 +37,15 @@ public class DatabaseBean implements Serializable {
 
     private BigDecimal porcentagemColisoes;
 
+    private BigDecimal porcentagemOverflow;
+
     private ArrayList<Tupla> registrosParaExibir;
 
-    private Integer qtdRegistrosPorPagina = 10;
+    private Integer tableScan = 10;
+
+    private Integer custoDaUltimaOperacao;
+
+    private String ultimaOperacao;
 
     @PostConstruct
     public void init() {
@@ -54,7 +62,8 @@ public class DatabaseBean implements Serializable {
         this.tabela = new Tabela(arquivoParaLer, tamanhoPagina);
         this.buckets = Bucket.carregarBucket(tabela.getPaginas(), tabela.getQtdLinhas());
         this.porcentagemColisoes = Bucket.calcularPorcentagem(Bucket.COLISOES, Bucket.QTD_LINHAS);
-        this.registrosParaExibir = tabela.getRegistros();
+        this.porcentagemOverflow = Bucket.calcularPorcentagem(Bucket.OVERFLOW, Bucket.MAX_QTD_BUCKETS);
+        tableScan();
     }
 
     public String buscar() {
@@ -70,9 +79,14 @@ public class DatabaseBean implements Serializable {
     }
 
     public String resetarTabela() {
-        this.registrosParaExibir = tabela.getRegistros();
+        tableScan();
         this.pagina = null;
         this.idxPagina = "Busque uma chave!";
+        return null;
+    }
+
+    public String carregarTodosOsDados() {
+        this.registrosParaExibir = tabela.getRegistros();
         return null;
     }
 
@@ -84,22 +98,31 @@ public class DatabaseBean implements Serializable {
         }
     }
 
-    public String gravarTamanhoPagina() {
+    public void tableScan() {
+        if (tableScan == null || tableScan <= 0) {
+            tableScan = 10;
+        }
+
+        List<Tupla> listaRst = tabela.getRegistros().stream().limit(tableScan).toList();
+        this.custoDaUltimaOperacao = listaRst.getLast().getIndicePagina();
+        this.ultimaOperacao = "Table Scan";
+        this.registrosParaExibir = new ArrayList<>(listaRst);
+    }
+
+    public void gravarTamanhoPagina() {
 
         if (tamanhoPagina == null) {
             PFUtil.error("O valor de tamanho da página é obrigatório!");
             PFUtil.abrirDialog("definirTamanhoPaginaDialog");
-            return null;
         }
+
         if (tamanhoPagina <= 0) {
             PFUtil.error("O valor de tamanho da página deve ser inteiro maior que zero!");
             PFUtil.abrirDialog("definirTamanhoPaginaDialog");
-            return null;
         }
 
         carregarBanco();
         PFUtil.fecharDialog("definirTamanhoPaginaDialog");
-        return null;
     }
 
     public Pagina getPagina() {
@@ -158,12 +181,12 @@ public class DatabaseBean implements Serializable {
         this.porcentagemColisoes = porcentagemColisoes;
     }
 
-    public Integer getQtdRegistrosPorPagina() {
-        return qtdRegistrosPorPagina;
+    public Integer getTableScan() {
+        return tableScan;
     }
 
-    public void setQtdRegistrosPorPagina(Integer qtdRegistrosPorPagina) {
-        this.qtdRegistrosPorPagina = qtdRegistrosPorPagina;
+    public void setTableScan(Integer tableScan) {
+        this.tableScan = tableScan;
     }
 
     public ArrayList<Tupla> getRegistrosParaExibir() {
@@ -180,6 +203,30 @@ public class DatabaseBean implements Serializable {
 
     public void setIdxPagina(String idxPagina) {
         this.idxPagina = idxPagina;
+    }
+
+    public Integer getCustoDaUltimaOperacao() {
+        return custoDaUltimaOperacao;
+    }
+
+    public void setCustoDaUltimaOperacao(Integer custoDaUltimaOperacao) {
+        this.custoDaUltimaOperacao = custoDaUltimaOperacao;
+    }
+
+    public String getUltimaOperacao() {
+        return ultimaOperacao;
+    }
+
+    public void setUltimaOperacao(String ultimaOperacao) {
+        this.ultimaOperacao = ultimaOperacao;
+    }
+
+    public BigDecimal getPorcentagemOverflow() {
+        return porcentagemOverflow;
+    }
+
+    public void setPorcentagemOverflow(BigDecimal porcentagemOverflow) {
+        this.porcentagemOverflow = porcentagemOverflow;
     }
 }
 

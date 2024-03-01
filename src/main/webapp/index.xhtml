@@ -33,7 +33,7 @@
                     <p:spinner id="tamanhoPagina" value="#{databaseBean.tamanhoPagina}"
                                converterMessage="Por favor, apenas números inteiros." required="true"
                                requiredMessage="O valor de tamanho da página é obrigatório!"/>
-                    <p:commandButton type="submit" value="Ok" action="#{databaseBean.gravarTamanhoPagina()}"
+                    <p:commandButton type="submit" value="Ok" actionListener="#{databaseBean.gravarTamanhoPagina()}"
                                      process="@form" update="@form growl" oncomplete="validarTamanhoPagina();"/>
                 </div>
             </div>
@@ -43,6 +43,11 @@
             <div class="campo-form">
                 <p:outputLabel for="porcentagemColisoes">% de colisões: </p:outputLabel>
                 <p:inputText id="porcentagemColisoes" value="#{databaseBean.porcentagemColisoes}" disabled="true"
+                             readonly="true"/>
+            </div>
+            <div class="campo-form">
+                <p:outputLabel for="porcentagemOverflow">% de overflow: </p:outputLabel>
+                <p:inputText id="porcentagemOverflow" value="#{databaseBean.porcentagemOverflow}" disabled="true"
                              readonly="true"/>
             </div>
             <div class="campo-form">
@@ -56,34 +61,54 @@
                              readonly="true"/>
             </div>
             <div class="campo-form">
-                <p:outputLabel for="qtdRegistrosPorPagina">Qtd. de registros exibidos: </p:outputLabel>
-                <p:spinner id="qtdRegistrosPorPagina" value="#{databaseBean.qtdRegistrosPorPagina}"
+                <p:outputLabel rendered="#{databaseBean.ultimaOperacao == null}" for="custoDaUltimaOperacao"
+                               value="Custo da última operação: "/>
+                <p:outputLabel rendered="#{databaseBean.ultimaOperacao != null}" for="custoDaUltimaOperacao"
+                               value="Custo da última operação (#{databaseBean.ultimaOperacao}): "/>
+                <p:inputText id="custoDaUltimaOperacao" value="#{databaseBean.custoDaUltimaOperacao + 1}"
+                             disabled="true"
+                             readonly="true"/>
+            </div>
+            <div class="campo-form">
+                <p:outputLabel for="tableScan">Qtd. de reg. exibidos (Table Scan): </p:outputLabel>
+                <p:spinner id="tableScan" value="#{databaseBean.tableScan}"
                            converterMessage="Por favor, apenas números inteiros." required="true"
                            requiredMessage="O valor de tamanho da página é obrigatório!" min="1">
-                    <p:ajax event="change" process="@form" update="@form"/>
+                    <p:ajax event="change" listener="#{databaseBean.tableScan()}" process="@form" update="@form"/>
                 </p:spinner>
             </div>
             <div class="campo-form">
                 <p:outputLabel for="chaveDeBusca">Buscar: </p:outputLabel>
-                <p:inputText id="chaveDeBusca" value="#{databaseBean.chaveDeBusca}"/>
+                <div class="ui-inputgroup">
+                    <p:inputText id="chaveDeBusca" value="#{databaseBean.chaveDeBusca}"/>
+                    <p:commandButton type="submit" action="#{databaseBean.buscar()}"
+                                     process="@form" update="@form growl" icon="pi pi-search"/>
+                </div>
             </div>
-            <p:commandButton type="submit" value="Buscar chave" action="#{databaseBean.buscar()}"
-                             process="@form" update="@form growl" icon="pi pi-search"/>
-            <p:commandButton value="Resetar tabela" type="submit" icon="pi pi-refresh"
-                             action="#{databaseBean.resetarTabela()}" process="@form" update="@form"/>
         </div>
 
         <div>
             <p:dataTable styleClass="main-datatable" var="tupla" value="#{databaseBean.registrosParaExibir}"
                          paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                          currentPageReportTemplate="{startRecord}-{endRecord} de {totalRecords} registros"
-                         lazy="false" rows="#{databaseBean.qtdRegistrosPorPagina}"
-                         paginator="true" paginatorPosition="both"
+                         lazy="false" rowsPerPageTemplate="5,10,15,20"
+                         rows="10" paginator="true" paginatorPosition="both"
             >
                 <f:facet name="header">
-                    <h:outputText rendered="#{databaseBean.pagina != null}"
-                                  value="Visualizando os conteúdos da página: #{databaseBean.idxPagina}"/>
-                    <h:outputText rendered="#{databaseBean.pagina == null}" value="#{databaseBean.idxPagina}"/>
+                    <div class="datatable-header">
+                        <h:outputText rendered="#{databaseBean.pagina != null}"
+                                      value="Visualizando os conteúdos da página: #{databaseBean.idxPagina}"/>
+                        <h:outputText rendered="#{databaseBean.pagina == null}" value="#{databaseBean.idxPagina}"/>
+
+                        <div class="datatable-header-button-group">
+                            <p:commandButton value="Carregar todos os dados" type="submit" icon="pi pi-database"
+                                             action="#{databaseBean.carregarTodosOsDados()}" process="@form"
+                                             update="@form"/>
+                            <p:commandButton value="Resetar tabela" type="submit" icon="pi pi-refresh"
+                                             action="#{databaseBean.resetarTabela()}" process="@form" update="@form"/>
+                        </div>
+
+                    </div>
                 </f:facet>
                 <p:column headerText="Indice página">
                     <h:outputText value="#{tupla.indicePagina}"/>

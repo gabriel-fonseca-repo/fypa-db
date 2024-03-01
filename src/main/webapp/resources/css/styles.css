@@ -40,12 +40,14 @@ body .ui-growl {
 }
 
 .campos-form {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    align-items: flex-end;
+
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-column-gap: 15px;
+    grid-row-gap: 15px;
+
+    padding: 3rem 5% 3rem 5%;
 }
 
 .main-datatable {
@@ -60,4 +62,20 @@ body .ui-growl {
 
 th.ui-state-default:has(> span.ui-column-title) {
     text-align: center;
+}
+
+.datatable-header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.datatable-header-button-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 20px;
 }

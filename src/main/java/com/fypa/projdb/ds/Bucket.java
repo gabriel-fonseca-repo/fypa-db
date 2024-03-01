@@ -12,18 +12,23 @@ import java.util.Optional;
 @Setter
 public class Bucket {
 
+    public static final Integer MAX_TAMANHO_BUCKET = 30;
+
     private ArrayList<Tupla> registros;
 
-    public static final Integer MAX_TAMANHO_BUCKET = 30;
+    private ArrayList<Bucket> overflow;
 
     public static Integer MAX_QTD_BUCKETS;
 
     public static Integer COLISOES;
 
+    public static Integer OVERFLOW;
+
     public static Integer QTD_LINHAS;
 
     public Bucket() {
         this.registros = new ArrayList<>();
+        this.overflow = new ArrayList<>();
     }
 
     public static ArrayList<Bucket> carregarBucket(ArrayList<Pagina> paginas, Integer qtdLinhas) {
@@ -37,16 +42,37 @@ public class Bucket {
             buckets.add(new Bucket());
 
         COLISOES = 0;
+        OVERFLOW = 0;
 
         for (Pagina pagina : paginas) {
             for (Tupla tupla : pagina.getDadosPagina()) {
 
                 int hash = Bucket.hash(tupla.getDados());
 
-                if (buckets.get(hash).isNotCheio()) {
-                    buckets.get(hash).getRegistros().add(tupla);
+                Bucket bucket = buckets.get(hash);
+
+                if (bucket.isNotCheio()) {
+                    bucket.getRegistros().add(tupla);
                 } else {
+
                     COLISOES += 1;
+
+                    if (bucket.getOverflow().isEmpty()) {
+                        bucket.getOverflow().add(new Bucket());
+                    }
+
+                    if (bucket.getOverflow().getLast().isNotCheio()) {
+                        if (bucket.getOverflow().getLast().getRegistros().isEmpty()) {
+                            OVERFLOW += 1;
+                        }
+                        bucket.getOverflow().getLast().getRegistros().add(tupla);
+                    } else {
+                        OVERFLOW += 1;
+                        Bucket novoOverflow = new Bucket();
+                        novoOverflow.getRegistros().add(tupla);
+                        bucket.getOverflow().add(novoOverflow);
+                    }
+
                 }
 
             }
