@@ -51,13 +51,25 @@
                              readonly="true"/>
             </div>
             <div class="campo-form">
-                <p:outputLabel for="quantidadePaginas">Qtd. de páginas: </p:outputLabel>
-                <p:inputText id="quantidadePaginas" value="#{databaseBean.tabela.paginas.size()}" disabled="true"
+                <p:outputLabel for="quantidadeBucketsReal">Qtd. de buckets (Real): </p:outputLabel>
+                <p:inputText id="quantidadeBucketsReal" value="#{databaseBean.numeroDeBucketsReal}" disabled="true"
                              readonly="true"/>
             </div>
             <div class="campo-form">
-                <p:outputLabel for="quantidadeBuckets">Qtd. de buckets: </p:outputLabel>
-                <p:inputText id="quantidadeBuckets" value="#{databaseBean.buckets.size()}" disabled="true"
+                <p:outputLabel for="quantidadeBucketsCalculado">Qtd. de buckets (Calculado): </p:outputLabel>
+                <p:inputText id="quantidadeBucketsCalculado" value="#{databaseBean.numeroDeBucketsCalculado}"
+                             disabled="true"
+                             readonly="true"/>
+            </div>
+            <div class="campo-form">
+                <p:outputLabel for="quantidadeBucketsOverflow">Qtd. de buckets (Overflow): </p:outputLabel>
+                <p:inputText id="quantidadeBucketsOverflow" value="#{databaseBean.numeroDeBucketsOverflow}"
+                             disabled="true"
+                             readonly="true"/>
+            </div>
+            <div class="campo-form">
+                <p:outputLabel for="quantidadePaginas">Qtd. de páginas: </p:outputLabel>
+                <p:inputText id="quantidadePaginas" value="#{databaseBean.tabela.paginas.size()}" disabled="true"
                              readonly="true"/>
             </div>
             <div class="campo-form">
@@ -105,7 +117,7 @@
                                              action="#{databaseBean.carregarTodosOsDados()}" process="@form"
                                              update="@form"/>
                             <p:commandButton value="Resetar tabela" type="submit" icon="pi pi-refresh"
-                                             action="#{databaseBean.resetarTabela()}" process="@form" update="@form"/>
+                                             action="#{databaseBean.tableScan()}" process="@form" update="@form"/>
                         </div>
 
                     </div>

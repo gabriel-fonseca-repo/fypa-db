@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -85,12 +84,24 @@ public class Bucket {
 
         Integer hashConsulta = Bucket.hash(dado);
 
-        ArrayList<Tupla> registros = buckets.get(hashConsulta).getRegistros();
+        Bucket bucket = buckets.get(hashConsulta);
+
+        ArrayList<Tupla> registros = bucket.getRegistros();
 
         Optional<Tupla> strikeConsulta = registros.stream().filter((t) -> t.getDados().equals(dado)).findFirst();
         if (strikeConsulta.isPresent()) {
             return strikeConsulta.get().getIndicePagina();
         } else {
+
+            ArrayList<Bucket> overflow = bucket.getOverflow();
+            for (Bucket bucketOvf : overflow) {
+                registros = bucketOvf.getRegistros();
+                strikeConsulta = registros.stream().filter((t) -> t.getDados().equals(dado)).findFirst();
+                if (strikeConsulta.isPresent()) {
+                    return strikeConsulta.get().getIndicePagina();
+                }
+            }
+
             throw new RuntimeException("Dado '" + dado + "' não encontrado no bucket!");
         }
 

@@ -31,6 +31,12 @@ public class DatabaseBean implements Serializable {
 
     private ArrayList<Bucket> buckets;
 
+    private Integer numeroDeBucketsCalculado;
+
+    private Integer numeroDeBucketsReal;
+
+    private Integer numeroDeBucketsOverflow;
+
     private Integer tamanhoPagina;
 
     private File arquivoParaLer;
@@ -63,6 +69,10 @@ public class DatabaseBean implements Serializable {
         this.buckets = Bucket.carregarBucket(tabela.getPaginas(), tabela.getQtdLinhas());
         this.porcentagemColisoes = Bucket.calcularPorcentagem(Bucket.COLISOES, Bucket.QTD_LINHAS);
         this.porcentagemOverflow = Bucket.calcularPorcentagem(Bucket.OVERFLOW, Bucket.MAX_QTD_BUCKETS);
+
+        this.numeroDeBucketsCalculado = tabela.getQtdLinhas() / Bucket.MAX_TAMANHO_BUCKET;
+        this.numeroDeBucketsReal = buckets.size();
+        this.numeroDeBucketsOverflow = this.buckets.stream().map(b -> b.getOverflow().size()).reduce(0, Integer::sum);
         tableScan();
     }
 
@@ -75,13 +85,6 @@ public class DatabaseBean implements Serializable {
         } catch (RuntimeException re) {
             PFUtil.error(re.getMessage());
         }
-        return null;
-    }
-
-    public String resetarTabela() {
-        tableScan();
-        this.pagina = null;
-        this.idxPagina = "Busque uma chave!";
         return null;
     }
 
@@ -102,6 +105,9 @@ public class DatabaseBean implements Serializable {
         if (tableScan == null || tableScan <= 0) {
             tableScan = 10;
         }
+
+        this.pagina = null;
+        this.idxPagina = "Busque uma chave!";
 
         List<Tupla> listaRst = tabela.getRegistros().stream().limit(tableScan).toList();
         this.custoDaUltimaOperacao = listaRst.getLast().getIndicePagina();
@@ -227,6 +233,30 @@ public class DatabaseBean implements Serializable {
 
     public void setPorcentagemOverflow(BigDecimal porcentagemOverflow) {
         this.porcentagemOverflow = porcentagemOverflow;
+    }
+
+    public Integer getNumeroDeBucketsReal() {
+        return numeroDeBucketsReal;
+    }
+
+    public void setNumeroDeBucketsReal(Integer numeroDeBucketsReal) {
+        this.numeroDeBucketsReal = numeroDeBucketsReal;
+    }
+
+    public Integer getNumeroDeBucketsCalculado() {
+        return numeroDeBucketsCalculado;
+    }
+
+    public void setNumeroDeBucketsCalculado(Integer numeroDeBucketsCalculado) {
+        this.numeroDeBucketsCalculado = numeroDeBucketsCalculado;
+    }
+
+    public Integer getNumeroDeBucketsOverflow() {
+        return numeroDeBucketsOverflow;
+    }
+
+    public void setNumeroDeBucketsOverflow(Integer numeroDeBucketsOverflow) {
+        this.numeroDeBucketsOverflow = numeroDeBucketsOverflow;
     }
 }
 
